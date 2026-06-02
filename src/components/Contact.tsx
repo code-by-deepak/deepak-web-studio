@@ -1,12 +1,34 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Mail, MessageCircle, Send, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { SectionHead } from "./Services";
 
+const NAME_REGEX = /^[\p{L}\p{M}'’\-.\s]+$/u;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PHONE_REGEX = /^[+\d][\d\s\-().]{6,30}$/;
+
+function validate(payload: {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+}): string | null {
+  if (payload.name.length < 2) return "Please enter your full name";
+  if (payload.name.length > 80) return "Name is too long";
+  if (!NAME_REGEX.test(payload.name)) return "Name contains invalid characters";
+  if (!EMAIL_REGEX.test(payload.email)) return "Please enter a valid email address";
+  if (payload.email.length > 254) return "Email is too long";
+  if (payload.phone && !PHONE_REGEX.test(payload.phone)) return "Please enter a valid phone number";
+  if (payload.message.length < 10) return "Message should be at least 10 characters";
+  if (payload.message.length > 4000) return "Message is too long";
+  return null;
+}
+
 export function Contact() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const renderedAtRef = useRef<number>(Date.now());
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -14,11 +36,19 @@ export function Contact() {
     const fd = new FormData(form);
     const payload = {
       name: String(fd.get("name") ?? "").trim(),
-      email: String(fd.get("email") ?? "").trim(),
+      email: String(fd.get("email") ?? "").trim().toLowerCase(),
       phone: String(fd.get("phone") ?? "").trim(),
       projectType: String(fd.get("projectType") ?? "").trim(),
       message: String(fd.get("message") ?? "").trim(),
+      website: String(fd.get("website") ?? ""), // honeypot
+      renderedAt: renderedAtRef.current,
     };
+
+    const localError = validate(payload);
+    if (localError) {
+      toast.error(localError);
+      return;
+    }
 
     setSending(true);
     try {
@@ -32,6 +62,7 @@ export function Contact() {
         throw new Error(data?.error ?? "Something went wrong");
       }
       form.reset();
+      renderedAtRef.current = Date.now();
       setSent(true);
       toast.success("Message sent! Deepak will get back to you within 24 hours.");
     } catch (err) {
@@ -110,7 +141,10 @@ export function Contact() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => setSent(false)}
+                    onClick={() => {
+                      renderedAtRef.current = Date.now();
+                      setSent(false);
+                    }}
                     className="mt-2 px-5 py-2.5 rounded-xl font-medium border border-border hover:border-accent/40 transition-colors"
                   >
                     Send another message
@@ -124,13 +158,37 @@ export function Contact() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   className="grid gap-4"
+                  noValidate
                 >
+                  {/* Honeypot field — hidden from real users, bots fill it */}
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      position: "absolute",
+                      left: "-10000px",
+                      top: "auto",
+                      width: "1px",
+                      height: "1px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <label>
+                      Website
+                      <input
+                        type="text"
+                        name="website"
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                    </label>
+                  </div>
+
                   <div className="grid md:grid-cols-2 gap-4">
-                    <Field label="Name" name="name" required maxLength={100} />
-                    <Field label="Email" name="email" type="email" required maxLength={255} />
+                    <Field label="Name" name="name" required minLength={2} maxLength={80} autoComplete="name" />
+                    <Field label="Email" name="email" type="email" required maxLength={254} autoComplete="email" />
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <Field label="Phone" name="phone" maxLength={40} />
+                    <Field label="Phone" name="phone" type="tel" maxLength={40} autoComplete="tel" inputMode="tel" />
                     <div>
                       <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">Project Type</label>
                       <select
@@ -152,6 +210,7 @@ export function Contact() {
                       name="message"
                       required
                       rows={5}
+                      minLength={10}
                       maxLength={4000}
                       className="w-full bg-background/40 border border-border rounded-xl px-4 py-3 focus:border-accent focus:outline-none transition-colors resize-none"
                       placeholder="Tell me about your project..."
