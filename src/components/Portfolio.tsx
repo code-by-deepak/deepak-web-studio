@@ -2,25 +2,40 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import { SectionHead } from "./Services";
-import p1 from "@/assets/project-1.jpg";
-import p2 from "@/assets/project-2.jpg";
-import p3 from "@/assets/project-3.jpg";
-import p4 from "@/assets/project-4.jpg";
-import p5 from "@/assets/project-5.jpg";
-import p6 from "@/assets/project-6.jpg";
+import p1 from "@/assets/project-saffron.jpg";
+import p2 from "@/assets/project-ironpeak.jpg";
+import p3 from "@/assets/project-velvet.jpg";
 
-type Cat = "All" | "Business Sites" | "Landing Pages" | "E-Commerce";
+type Cat = "All" | "Business Sites";
 
-const projects: { img: string; name: string; tech: string; cat: Exclude<Cat, "All"> }[] = [
-  { img: p1, name: "ConsultPro", tech: "React · Tailwind", cat: "Business Sites" },
-  { img: p2, name: "Carcoity Store", tech: "Next.js · Stripe", cat: "E-Commerce" },
-  { img: p3, name: "Saxun Ventures", tech: "React · Framer", cat: "Landing Pages" },
-  { img: p4, name: "Restaurante Lume", tech: "HTML · CSS · JS", cat: "Business Sites" },
-  { img: p5, name: "Cuvee Fashion", tech: "Shopify · React", cat: "E-Commerce" },
-  { img: p6, name: "NeveCrate App", tech: "React · Tailwind", cat: "Landing Pages" },
+const projects: { img: string; name: string; tech: string; cat: Exclude<Cat, "All">; url: string; desc: string }[] = [
+  {
+    img: p1,
+    name: "Saffron & Smoke",
+    tech: "React · Tailwind",
+    cat: "Business Sites",
+    url: "https://saffron-smoke-demo.vercel.app/",
+    desc: "Premium Indian fusion restaurant website with reservation system, menu, chef profiles, and gallery.",
+  },
+  {
+    img: p2,
+    name: "IronPeak Fitness",
+    tech: "React · Tailwind",
+    cat: "Business Sites",
+    url: "https://ironpeak-fitness-showcase.vercel.app/",
+    desc: "High-energy gym website with program listings, trainer profiles, membership pricing, and free trial booking.",
+  },
+  {
+    img: p3,
+    name: "Velvet Bloom Studio",
+    tech: "React · Tailwind",
+    cat: "Business Sites",
+    url: "https://radhika-salons-brown.vercel.app/",
+    desc: "Luxury beauty salon website with service menu, stylist profiles, membership plans, and appointment booking.",
+  },
 ];
 
-const filters: Cat[] = ["All", "Business Sites", "Landing Pages", "E-Commerce"];
+const filters: Cat[] = ["All", "Business Sites"];
 
 export function Portfolio() {
   const [active, setActive] = useState<Cat>("All");
@@ -71,7 +86,9 @@ export function Portfolio() {
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center">
                   <a
-                    href="#contact"
+                    href={p.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold bg-gradient-to-r from-primary to-accent text-primary-foreground translate-y-4 group-hover:translate-y-0 transition-transform"
                   >
                     View Project <ExternalLink className="w-4 h-4" />
