@@ -5,6 +5,7 @@ import { SectionHead } from "./Services";
 import p1 from "@/assets/project-saffron.jpg";
 import p2 from "@/assets/project-ironpeak.jpg";
 import p3 from "@/assets/project-velvet.jpg";
+import p4 from "@/assets/project-medicare.jpg";
 
 type Cat = "All" | "Business Sites";
 
@@ -15,7 +16,7 @@ const projects: { img: string; name: string; tech: string; cat: Exclude<Cat, "Al
     tech: "React · Tailwind",
     cat: "Business Sites",
     url: "https://saffron-smoke-demo.vercel.app/",
-    desc: "Premium Indian fusion restaurant website with reservation system, menu, chef profiles, and gallery.",
+    desc: "Premium Indian fusion restaurant website with menu, chef profiles, reservation system, and gallery. New Delhi.",
   },
   {
     img: p2,
@@ -23,7 +24,7 @@ const projects: { img: string; name: string; tech: string; cat: Exclude<Cat, "Al
     tech: "React · Tailwind",
     cat: "Business Sites",
     url: "https://ironpeak-fitness-showcase.vercel.app/",
-    desc: "High-energy gym website with program listings, trainer profiles, membership pricing, and free trial booking.",
+    desc: "High-energy gym website with program listings, trainer profiles, membership pricing, and free trial booking. New Delhi.",
   },
   {
     img: p3,
@@ -31,7 +32,15 @@ const projects: { img: string; name: string; tech: string; cat: Exclude<Cat, "Al
     tech: "React · Tailwind",
     cat: "Business Sites",
     url: "https://radhika-salons-brown.vercel.app/",
-    desc: "Luxury beauty salon website with service menu, stylist profiles, membership plans, and appointment booking.",
+    desc: "Luxury beauty salon website with service menu, stylist profiles, membership plans, and appointment booking. Mumbai.",
+  },
+  {
+    img: p4,
+    name: "MediCare Plus",
+    tech: "React · Tailwind",
+    cat: "Business Sites",
+    url: "https://medicare-plus-showcase.vercel.app/",
+    desc: "Multi-specialty clinic website with doctor profiles, appointment booking, health packages, 8 specialities, and 24/7 emergency care. Bangalore.",
   },
 ];
 
