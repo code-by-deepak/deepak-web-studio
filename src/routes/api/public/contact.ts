@@ -195,19 +195,34 @@ export const Route = createFileRoute("/api/public/contact")({
           auth: { autoRefreshToken: false, persistSession: false },
         });
 
+        const submission = {
+          name: data.name,
+          email: data.email,
+          phone: data.phone || null,
+          project_type: data.projectType || null,
+          message: data.message,
+        };
+
         const { error: insertError } = await supabase
           .from("contact_submissions")
-          .insert({
-            name: data.name,
-            email: data.email,
-            phone: data.phone || null,
-            project_type: data.projectType || null,
-            message: data.message,
-          });
+          .insert(submission);
 
         if (insertError) {
           console.error("Insert error:", insertError);
           return jsonResponse({ error: "Could not save submission" }, 500);
+        }
+
+        // Mirror to MongoDB Atlas (best-effort — don't fail the request if it errors)
+        try {
+          const { getMongoDb } = await import("@/lib/mongo.server");
+          const db = await getMongoDb("portfolio_db");
+          await db.collection("dev_portfolio").insertOne({
+            ...submission,
+            createdAt: new Date(),
+            source: "contact_form",
+          });
+        } catch (mongoErr) {
+          console.error("MongoDB mirror failed:", mongoErr);
         }
 
         const emailResult = await sendOwnerEmail(data);
