@@ -87,7 +87,7 @@ function AdminPage() {
           <div>
             <h1 className="text-2xl font-bold">Contact submissions</h1>
             <p className="text-sm text-muted-foreground">
-              Showing {rows.length} entries from Supabase + MongoDB
+              Showing {rows.length} entries from MongoDB
             </p>
           </div>
           <button
@@ -174,11 +174,7 @@ function AdminPage() {
                   <tr key={`${r.source}-${r.id}`} className="border-t border-border/50 align-top">
                     <td className="px-4 py-3">
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          r.source === "supabase"
-                            ? "bg-emerald-500/15 text-emerald-400"
-                            : "bg-sky-500/15 text-sky-400"
-                        }`}
+                        className="text-xs px-2 py-1 rounded-full bg-sky-500/15 text-sky-400"
                       >
                         {r.source}
                       </span>

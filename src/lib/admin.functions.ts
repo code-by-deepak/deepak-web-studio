@@ -9,7 +9,7 @@ const InputSchema = z.object({
 
 export type Submission = {
   id: string;
-  source: "supabase" | "mongodb";
+  source: "mongodb";
   name: string;
   email: string;
   phone: string | null;
@@ -32,38 +32,12 @@ export const getSubmissions = createServerFn({ method: "POST" })
     const results: Submission[] = [];
     const errors: string[] = [];
 
-    // Supabase
-    try {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: rows, error } = await supabaseAdmin
-        .from("contact_submissions")
-        .select("id, name, email, phone, project_type, message, created_at")
-        .order("created_at", { ascending: false })
-        .limit(500);
-      if (error) throw error;
-      for (const r of rows ?? []) {
-        results.push({
-          id: String(r.id),
-          source: "supabase",
-          name: r.name,
-          email: r.email,
-          phone: r.phone ?? null,
-          project_type: r.project_type ?? null,
-          message: r.message,
-          created_at: r.created_at,
-        });
-      }
-    } catch (e) {
-      console.error("Supabase fetch failed:", e);
-      errors.push(`Supabase: ${e instanceof Error ? e.message : "unknown error"}`);
-    }
-
-    // MongoDB
     try {
       const { getMongoDb } = await import("@/lib/mongo.server");
       const db = await getMongoDb("portfolio_db");
+
       const docs = await db
-        .collection("dev_portfolio")
+        .collection("contact_submissions")
         .find({})
         .sort({ createdAt: -1 })
         .limit(500)
@@ -88,7 +62,6 @@ export const getSubmissions = createServerFn({ method: "POST" })
       errors.push(`MongoDB: ${e instanceof Error ? e.message : "unknown error"}`);
     }
 
-    // Filter
     const q = data.search.trim().toLowerCase();
     const filtered = q
       ? results.filter((r) => {

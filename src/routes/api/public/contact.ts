@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 const NAME_REGEX = /^[\p{L}\p{M}'’\-.\s]+$/u;
@@ -180,49 +179,27 @@ export const Route = createFileRoute("/api/public/contact")({
           return jsonResponse({ error: spamReason }, 400);
         }
 
-        const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
-        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-        if (!supabaseUrl || !serviceKey) {
-          const missing = [
-            !supabaseUrl && "SUPABASE_URL",
-            !serviceKey && "SUPABASE_SERVICE_ROLE_KEY",
-          ].filter(Boolean).join(", ");
-          console.error("Contact endpoint missing env vars:", missing);
-          return jsonResponse({ error: `Server not configured (missing ${missing})` }, 500);
+        const mongoUri = process.env.MONGODB_URI;
+        if (!mongoUri) {
+          console.error("Contact endpoint missing env var: MONGODB_URI");
+          return jsonResponse({ error: "Server not configured (missing MONGODB_URI)" }, 500);
         }
 
-        const supabase = createClient(supabaseUrl, serviceKey, {
-          auth: { autoRefreshToken: false, persistSession: false },
-        });
-
-        const submission = {
-          name: data.name,
-          email: data.email,
-          phone: data.phone || null,
-          project_type: data.projectType || null,
-          message: data.message,
-        };
-
-        const { error: insertError } = await supabase
-          .from("contact_submissions")
-          .insert(submission);
-
-        if (insertError) {
-          console.error("Insert error:", insertError);
-          return jsonResponse({ error: "Could not save submission" }, 500);
-        }
-
-        // Mirror to MongoDB Atlas (best-effort — don't fail the request if it errors)
         try {
           const { getMongoDb } = await import("@/lib/mongo.server");
           const db = await getMongoDb("portfolio_db");
-          await db.collection("dev_portfolio").insertOne({
-            ...submission,
+          await db.collection("contact_submissions").insertOne({
+            name: data.name,
+            email: data.email,
+            phone: data.phone || null,
+            project_type: data.projectType || null,
+            message: data.message,
             createdAt: new Date(),
             source: "contact_form",
           });
         } catch (mongoErr) {
-          console.error("MongoDB mirror failed:", mongoErr);
+          console.error("MongoDB insert failed:", mongoErr);
+          return jsonResponse({ error: "Could not save submission" }, 500);
         }
 
         const emailResult = await sendOwnerEmail(data);
