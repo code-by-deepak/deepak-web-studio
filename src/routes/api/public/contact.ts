@@ -22,17 +22,8 @@ const ContactSchema = z.object({
     .optional()
     .or(z.literal(""))
     .refine((v) => !v || PHONE_REGEX.test(v), "Invalid phone number"),
-  projectType: z
-    .string()
-    .trim()
-    .max(80)
-    .optional()
-    .or(z.literal("")),
-  message: z
-    .string()
-    .trim()
-    .min(10, "Message is too short")
-    .max(4000, "Message is too long"),
+  projectType: z.string().trim().max(80).optional().or(z.literal("")),
+  message: z.string().trim().min(10, "Message is too short").max(4000, "Message is too long"),
   // Honeypot — must be empty
   website: z.string().max(0).optional().or(z.literal("")),
   // Timestamp the form was rendered (ms). Used for minimum fill time.

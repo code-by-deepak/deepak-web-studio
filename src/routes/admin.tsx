@@ -5,10 +5,7 @@ import { getSubmissions, type Submission } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
-    meta: [
-      { title: "Admin" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Admin" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   component: AdminPage,
 });
@@ -173,9 +170,7 @@ function AdminPage() {
                 {rows.map((r) => (
                   <tr key={`${r.source}-${r.id}`} className="border-t border-border/50 align-top">
                     <td className="px-4 py-3">
-                      <span
-                        className="text-xs px-2 py-1 rounded-full bg-sky-500/15 text-sky-400"
-                      >
+                      <span className="text-xs px-2 py-1 rounded-full bg-sky-500/15 text-sky-400">
                         {r.source}
                       </span>
                     </td>
